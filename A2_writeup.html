@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Second Seam, Assignment 2 Write-up</title>
+<style>
+  @page { size: Letter; margin: 0.8in 0.85in; }
+  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1d1d1b; }
+  h1 { font-family: Georgia, "Times New Roman", serif; font-weight: normal; font-size: 22pt; margin: 0 0 2pt; }
+  .sub { color: #666; margin: 0 0 14pt; font-size: 10pt; }
+  h2 { font-family: Georgia, serif; font-weight: normal; font-size: 15pt; border-bottom: 1px solid #ddd; padding-bottom: 3pt; margin: 20pt 0 8pt; }
+  h3 { font-size: 11pt; margin: 14pt 0 4pt; }
+  p { margin: 0 0 7pt; }
+  ol, ul { margin: 0 0 8pt; padding-left: 20pt; }
+  li { margin-bottom: 4pt; }
+  table { border-collapse: collapse; width: 100%; font-size: 9.5pt; margin: 6pt 0 10pt; }
+  th, td { border: 1px solid #ddd; padding: 3pt 6pt; text-align: left; vertical-align: top; }
+  th { background: #f4f4f2; font-weight: 600; }
+  tr { page-break-inside: avoid; }
+  .note { font-size: 9pt; color: #555; }
+</style>
+</head>
+<body>
+
+<h1>Second Seam</h1>
+<p class="sub">CSEN 163, Assignment 2 · Jessica Chang · Prototype: open index.html in a browser (all listings are demo data)</p>
+
+<p>Second Seam is a clickable website built from my assignment 1 storyboard. You give it your style, measurements, closet, and budget. It ranks thrifted clothes by what you say matters, plans which wardrobe goals to buy first, flags when underwear needs replacing (always bought new), and points you to a well-rated local tailor.</p>
+
+<h2>Part A</h2>
+
+<h3>1. How the prototype leverages the user's mental models</h3>
+<p>I wanted every screen to feel like something people already know, so they can guess what a control does before they touch it.</p>
+<ol>
+  <li>The flow matches how you'd shop in a store: what do I like, will it fit, do I already own one, can I afford it. A step bar shows where you are and what's left.</li>
+  <li>Controls borrow from apps people use daily. Style tiles work like a Pinterest board. The in/cm toggle converts every field at once. Sort and filters on the results page work like Depop or Amazon.</li>
+  <li>The fiber panel on each item is laid out like a nutrition label, with natural % as the headline number. People already read "% of this, % of that" on food, so a fact usually buried in a seller's description takes a second to read.</li>
+  <li>The budget uses envelopes (thrift, tailoring, underwear, other), a method a lot of people already use for cash. Marking an item bought fills the spent meter, the same way a bank app updates a balance.</li>
+  <li>Priorities ask "how much does this matter to you?" on a 0 to 5 scale, with a lock for must-haves. A lock already means "this stays fixed" in most apps. Quick mode is one Style ↔ Fabric slider, because that's the tradeoff people actually argue with themselves about at the rack.</li>
+  <li>The math stays in the background. Tailors are ranked by an adjusted rating, so 5.0 from 11 reviews doesn't beat 4.8 from 147, which matches what a careful person would decide. The goal plan runs a dynamic programming model from Das et al. (2022), but the screen just says "chance you'll have a coat by week 6."</li>
+  <li>It follows the cognitive principles from lecture:
+    <ul>
+      <li>Recognition over recall: "Why this rank?" repeats your own weights, so you don't have to remember what you set three screens back.</li>
+      <li>Immediate feedback: a live preview re-orders three sample items the moment a weight changes, which closes the gulf of evaluation.</li>
+      <li>Forgiving design: every setup step can be skipped, "I don't know my measurements" falls back to brand sizes, and behavior-based suggestions are offered, never applied silently.</li>
+      <li>Plain words: "hem 2.5 in, about $15 to $25" instead of tailoring jargon.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3>2. How the prototype presents visual information effectively</h3>
+<ol>
+  <li>Every card has a stacked fiber bar: green for natural, striped amber for semi-synthetic, grey for synthetic, dotted for unknown. You can scan a page and compare by how much green you see. Each segment also has a text label, so color is never the only cue.</li>
+  <li>Match % is the biggest number on the card, because it's what you care about first. "Why this rank?" opens one mini bar per criterion, sized by your weight, so you see why one item beat another.</li>
+  <li>The priorities screen turns ten 0 to 5 ratings into one labeled bar ("Style is 24% of your score"). Ratios are hard to picture from ten numbers and easy to see in one bar.</li>
+  <li>Fit badges pair an icon, a word, and a color (fits as-is, fits with tailoring, hard to alter, won't fit). The fit diagram draws your measurements over the garment outline in green, amber, and red zones, so you see the gap instead of subtracting in your head.</li>
+  <li>Total cost sits on one line: "$14 thrift + $20 hem = $34 vs. ~$90 new." Every part of the decision reads left to right and ends with the comparison.</li>
+  <li>Goals appear as rings on a 12-week timeline, split into natural vs. synthetic. You can see which goals are safe and which are at risk, and the rings update as you change budget or deadlines.</li>
+  <li>The wardrobe summary strip and the pinned budget meter ("$108 of $150 left") give the overview first, with details on tap.</li>
+  <li>The palette is quiet (off-white, thin rules, muted status colors), so the colored parts, the fiber bars, badges, and rings, are what draw the eye.</li>
+</ol>
+
+<h2>Part B</h2>
+
+<h3>Actions a user might take</h3>
+<p class="note">Core profiles: fiber-first thrifter, style-first thrifter, budget planner. Extended profiles: alteration newbie, closet organizer, accessibility-needs shopper. Explicit feedback means the user states a preference directly. Implicit means the app infers it from behavior.</p>
+
+<table>
+<thead><tr><th>#</th><th>Action</th><th>Profile</th><th>Core / Ext.</th><th>Feedback</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Start setup</td><td>All</td><td>Core</td><td>Implicit</td></tr>
+<tr><td>2</td><td>Skip setup and just browse</td><td>First-time explorer</td><td>Ext.</td><td>Implicit</td></tr>
+<tr><td>3</td><td>Pick outfit tiles, garment types, and colors</td><td>Style-first</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>4</td><td>Type a hunt phrase ("cream fisherman sweater")</td><td>Style-first</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>5</td><td>Switch between in and cm</td><td>All</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>6</td><td>Open "How to measure"</td><td>Alteration newbie</td><td>Ext.</td><td>Implicit</td></tr>
+<tr><td>7</td><td>Enter measurements and fit preference</td><td>All</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>8</td><td>Use brand sizes instead ("I don't know my measurements")</td><td>Alteration newbie</td><td>Ext.</td><td>Explicit</td></tr>
+<tr><td>9</td><td>Add closet items by photo, care tag, or quick add</td><td>Closet organizer</td><td>Ext.</td><td>Explicit</td></tr>
+<tr><td>10</td><td>Mark an owned item worn or needing repair</td><td>Closet organizer</td><td>Ext.</td><td>Explicit</td></tr>
+<tr><td>11</td><td>Set amount now, allowance, and max per item</td><td>Budget planner</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>12</td><td>Toggle strict or flexible budget</td><td>Budget planner</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>13</td><td>Drag the envelope split</td><td>Budget planner</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>14</td><td>Move the Style ↔ Fabric slider or pick a preset</td><td>Fiber-first, style-first</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>15</td><td>Rate the 10 criteria and lock must-haves</td><td>Fiber-first</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>16</td><td>Check fiber dealbreakers (never wool, never acrylic)</td><td>Accessibility-needs (sensitive skin)</td><td>Ext.</td><td>Explicit</td></tr>
+<tr><td>17</td><td>Answer "This or that" cards to pre-fill weights</td><td>Unsure user</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>18</td><td>Watch the preview re-rank while adjusting weights</td><td>All core</td><td>Core</td><td>Implicit</td></tr>
+<tr><td>19</td><td>Add a goal or change its importance or deadline</td><td>Budget planner</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>20</td><td>Try "what if" controls on the goal plan</td><td>Budget planner</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>21</td><td>Read the method page behind the plan</td><td>Curious user</td><td>Ext.</td><td>Implicit</td></tr>
+<tr><td>22</td><td>Sort or filter results</td><td>All</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>23</td><td>Open "Why this rank?"</td><td>All core</td><td>Core</td><td>Implicit</td></tr>
+<tr><td>24</td><td>Read an item's fiber label or tap "Verify fiber"</td><td>Fiber-first</td><td>Core</td><td>Implicit</td></tr>
+<tr><td>25</td><td>Check the fit diagram and alteration list</td><td>Alteration newbie</td><td>Ext.</td><td>Implicit</td></tr>
+<tr><td>26</td><td>Tap "I'd buy it anyway" on a low-fiber item</td><td>Style-first</td><td>Core</td><td>Both</td></tr>
+<tr><td>27</td><td>Scroll past high-style synthetics</td><td>Fiber-first</td><td>Core</td><td>Implicit</td></tr>
+<tr><td>28</td><td>Accept or dismiss a weight suggestion</td><td>All core</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>29</td><td>Skip an item after a duplicate warning</td><td>Closet organizer</td><td>Ext.</td><td>Implicit</td></tr>
+<tr><td>30</td><td>Save an item or mark it bought</td><td>Budget planner</td><td>Core</td><td>Explicit</td></tr>
+<tr><td>31</td><td>Tap "Find a tailor for this"</td><td>Alteration newbie</td><td>Ext.</td><td>Implicit</td></tr>
+<tr><td>32</td><td>Show all tailors or change the radius</td><td>Alteration newbie</td><td>Ext.</td><td>Explicit</td></tr>
+<tr><td>33</td><td>Call a tailor, get directions, or copy the alteration list</td><td>Alteration newbie</td><td>Ext.</td><td>Implicit</td></tr>
+<tr><td>34</td><td>Read tailor hours and review notes to judge access</td><td>Accessibility-needs</td><td>Ext.</td><td>Implicit</td></tr>
+<tr><td>35</td><td>Open underwear restock and see why pairs are flagged</td><td>Closet organizer</td><td>Ext.</td><td>Implicit</td></tr>
+<tr><td>36</td><td>Change or turn off the underwear replacement interval</td><td>Closet organizer</td><td>Ext.</td><td>Explicit</td></tr>
+<tr><td>37</td><td>Follow the recycling link for old underwear</td><td>Fiber-first</td><td>Ext.</td><td>Implicit</td></tr>
+<tr><td>38</td><td>Use the whole app by keyboard or screen reader</td><td>Accessibility-needs</td><td>Ext.</td><td>Implicit</td></tr>
+</tbody>
+</table>
+
+<h3>Core vs. extended, explicit vs. implicit</h3>
+<p>Core actions are the main loop for the three users I designed around: say what you like, set a budget, weigh what matters, then browse, save, and buy (3 to 5, 11 to 15, 17 to 20, 22 to 30). If those break, the app breaks. Extended users come in through a side door. The alteration newbie lives in measurement help, the fit diagram, and tailors (6, 8, 25, 31 to 33). The closet organizer lives in the wardrobe and underwear screens (9, 10, 29, 35, 36). The accessibility-needs shopper depends on dealbreakers, tailor details, and keyboard support (16, 34, 38). A lot of what the app teaches, like how to measure or what's alterable, lands with these extended users.</p>
+<p>Explicit feedback is the user telling the app outright: picking tiles, rating criteria, setting a budget, saving. Implicit feedback is the app reading behavior: opening fiber labels often means fabric matters, scrolling past synthetics means the same, ignoring "goes with" items means statement pieces win. "I'd buy it anyway" is both. It pins the item and signals style over fabric. I hold one firm rule here: implicit feedback only becomes a suggestion the user can accept (28). It never changes their weights on its own, so the ranking always reflects what they said.</p>
+
+<h3>Accessibility</h3>
+<p>What the prototype supports now:</p>
+<ol>
+  <li>Screen reader structure: <code>lang="en"</code>, one h1 per screen, sections labeled with <code>aria-labelledby</code>, and focus moves to the new h1 on every screen change.</li>
+  <li>A "Skip to content" link as the first tab stop.</li>
+  <li><code>aria-live</code> regions announce the re-ranking preview, budget meter, and goal chances when they change.</li>
+  <li>Controls report their state: <code>aria-pressed</code> on chips, <code>aria-expanded</code> on expanders, <code>aria-valuetext</code> on sliders ("Balanced," "4 of 5"). Icon buttons have labels and decorative icons are hidden.</li>
+  <li>Everything is a real button, link, or input with a visible focus ring, so it works by keyboard.</li>
+  <li>Color is never the only signal. Fiber bars add stripes and text, fit badges add a word, fit zones are labeled.</li>
+  <li>Animations turn off when the system's reduce-motion setting is on.</li>
+  <li>Fiber dealbreakers let people with sensitive skin or allergies block a fiber completely.</li>
+</ol>
+<p>What I'd improve next:</p>
+<ol>
+  <li>Test with NVDA and VoiceOver and with people who use them daily, and run a full contrast check on the pastel status pills.</li>
+  <li>Give the rings, donut, and fit diagram a text summary, like "Winter coat: 72% chance by week 6, 44% wool."</li>
+  <li>Generate editable alt text for listing photos, since thrift sellers rarely write any.</li>
+  <li>Enlarge tap targets on mobile and let people type the envelope split instead of only dragging.</li>
+  <li>Pull wheelchair access info for tailors from Google Maps instead of relying on review notes.</li>
+  <li>Add a plain-language mode for the method page, and translations.</li>
+</ol>
+
+</body>
+</html>
